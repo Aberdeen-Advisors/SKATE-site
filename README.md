@@ -33,20 +33,6 @@ SKATE turns workshop evidence into durable, connected memory that AI agents can 
 
 Double-click `index.html`. The experience works offline; internet access only improves the optional web fonts and README badges.
 
-## Deploy on Vercel
-
-Import this repository into Vercel and use:
-
-- **Framework Preset:** Other
-- **Build Command:** leave empty
-- **Output Directory:** `.`
-
-Every push to `main` will publish a fresh production deployment after the repository is connected.
-
-## Update the GitHub site
-
-Double-click `publish-to-github.bat`. It uploads only the approved site files to the `Aberdeen-Advisors/SKATE-site` repository. Git may open a browser the first time so you can sign in to GitHub.
-
 ## Project files
 
 | File | Purpose |
@@ -62,4 +48,4 @@ Double-click `publish-to-github.bat`. It uploads only the approved site files to
 
 <p align="center"><strong>Proprietary tech. Sick attitude. Zero decaf context windows.</strong></p>
 
-© Aberdeen Advisors. SKATE product materials are proprietary. Third-party components remain under the terms listed in `THIRD-PARTY-NOTICES.txt`.
+© NeraTech. SKATE product materials are proprietary. Third-party components remain under the terms listed in `THIRD-PARTY-NOTICES.txt`.
