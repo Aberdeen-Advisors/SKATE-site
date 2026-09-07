@@ -1,0 +1,6 @@
+# Repository helpers are useful on GitHub but are not part of the live website.
+.git
+.gitignore
+.vercelignore
+README.md
+publish-to-github.bat
