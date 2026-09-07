@@ -4,8 +4,6 @@
 
 <h1 align="center">SKATE</h1>
 
-<p align="center"><strong>Small Knowledge Architecture for Trusted Execution</strong></p>
-
 <p align="center">
   <img alt="Status: shredding" src="https://img.shields.io/badge/status-shredding-4b927b?style=for-the-badge">
   <img alt="Fuel: suspicious amounts of coffee" src="https://img.shields.io/badge/fueled%20by-suspicious%20amounts%20of%20coffee-b55424?style=for-the-badge">
