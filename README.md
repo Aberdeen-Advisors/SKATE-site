@@ -29,13 +29,14 @@ SKATE turns workshop evidence into durable, connected memory that AI agents can 
 
 ## View locally
 
-Double-click `index.html`. The experience works offline; internet access only improves the optional web fonts and README badges.
+Double-click `index.html`. The wheel, walkthrough, and context comparison work offline. The YouTube video requires internet access and loads through the live site so it also works from a local file. A short swipe reveals it; Enter or Space works too.
 
 ## Project files
 
 | File | Purpose |
 |---|---|
 | `index.html` | Complete SKATE site and interactions |
+| `video.html` | Hosted YouTube player for both the live site and local copies |
 | `skateboard-3d.js` | Self-contained 3D board and renderer |
 | `skateboard.png` | Static fallback board and README artwork |
 | `favicon.png` | Browser and README icon |

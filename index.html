@@ -88,7 +88,7 @@ nav .btn{padding:9px 18px; font-size:15px}
 .wheel-video{position:absolute;inset:0;display:grid;align-content:center;gap:12px;opacity:0;transition:opacity .35s ease}
 .wheel-video[hidden]{display:none}
 .wheel-stage.has-video .wheel-video{opacity:1}
-.wheel-video iframe{display:block;width:100%;aspect-ratio:16 / 9;border:0;border-radius:14px;background:#000}
+.wheel-video iframe{display:block;width:100%;aspect-ratio:16 / 9;min-height:200px;border:0;border-radius:14px;background:#000}
 .wheel-video-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
 .wheel-video-controls .btn{padding:7px 12px;font-size:14px}
 
@@ -1077,14 +1077,17 @@ img.only-dark{display:none}
   wheel.draggable = false;
   wheel.tabIndex = 0;
   wheel.setAttribute('role', 'button');
-  wheel.setAttribute('aria-label', 'Spin the SKATE wheel. Flick it through a full turn to reveal the video, or press Enter to watch.');
-  wheel.setAttribute('title', 'Give the wheel a strong flick to reveal the video. Use the arrow keys to spin, or press Enter to watch.');
+  wheel.setAttribute('aria-label', 'Spin the SKATE wheel. Give it a short swipe to reveal the video, or press Enter to watch.');
+  wheel.setAttribute('title', 'Give the wheel a short swipe to reveal the video. Use the arrow keys to spin, or press Enter to watch.');
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let rotation = 0;
   let lastAngle = 0;
   let lastTime = 0;
   let lastX = 0;
+  let startX = 0;
+  let startY = 0;
+  let dragDistance = 0;
   let angularVelocity = 0;
   let dragging = false;
   let activePointer = null;
@@ -1098,7 +1101,8 @@ img.only-dark{display:none}
   const MAX_SPEED = 1800; // degrees per second
   const FRICTION = 1.35;  // natural exponential slowdown
   const STOP_SPEED = 4;
-  const REVEAL_SPEED = 540;
+  const REVEAL_DISTANCE = 18; // A short mouse or touch swipe is enough.
+  const ASSISTED_SPEED = 1000; // Carry an easy swipe through the reveal turn.
   const REVEAL_TURN = 360;
 
   const revealVideo = () => {
@@ -1114,11 +1118,15 @@ img.only-dark{display:none}
       cancelAnimationFrame(frame);
       angularVelocity = 0;
       const iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/ymvML_I5RcI?rel=0';
       iframe.title = 'Denzel on SKATE — press Play to watch';
-      iframe.allow = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allow = 'encrypted-media; picture-in-picture';
       iframe.allowFullscreen = true;
       iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      // A real hosted document supplies YouTube's required HTTP referrer,
+      // including when this page is opened by double-clicking index.html.
+      iframe.src = window.location.protocol === 'https:'
+        ? new URL('video', window.location.href).href
+        : 'https://skate-site-rose.vercel.app/video';
       player.replaceChildren(iframe);
       video.hidden = false;
       // Commit the transparent state before fading the player into the wheel's space.
@@ -1138,6 +1146,7 @@ img.only-dark{display:none}
     revealing = false;
     spinArmed = false;
     angularVelocity = 0;
+    dragDistance = 0;
     rotation = 0;
     paint();
     wheel.tabIndex = 0;
@@ -1181,6 +1190,9 @@ img.only-dark{display:none}
     angularVelocity = 0;
     lastAngle = angleAt(event);
     lastX = event.clientX;
+    startX = event.clientX;
+    startY = event.clientY;
+    dragDistance = 0;
     lastTime = performance.now();
     wheel.setPointerCapture(event.pointerId);
   });
@@ -1196,6 +1208,7 @@ img.only-dark{display:none}
     const elapsed = Math.max(0.008, (now - lastTime) / 1000);
     const instantVelocity = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, delta / elapsed));
     rotation += delta;
+    dragDistance = Math.max(dragDistance, Math.hypot(event.clientX - startX, event.clientY - startY));
     angularVelocity = angularVelocity * 0.28 + instantVelocity * 0.72;
     lastAngle = nextAngle;
     lastX = event.clientX;
@@ -1207,9 +1220,13 @@ img.only-dark{display:none}
     dragging = false;
     activePointer = null;
     if (wheel.hasPointerCapture(event.pointerId)) wheel.releasePointerCapture(event.pointerId);
-    // A cancelled gesture or a drag held still before release is not a flick.
+    // Ignore cancelled gestures, but don't require a precise release speed.
     if (event.type === 'pointercancel' || performance.now() - lastTime > 120) angularVelocity = 0;
-    spinArmed = Math.abs(angularVelocity) >= REVEAL_SPEED;
+    spinArmed = event.type !== 'pointercancel' && dragDistance >= REVEAL_DISTANCE;
+    if (spinArmed) {
+      const direction = Math.sign(rotation - spinStart) || Math.sign(angularVelocity) || 1;
+      angularVelocity = direction * Math.max(Math.abs(angularVelocity), ASSISTED_SPEED);
+    }
     if (spinArmed && (reduceMotion.matches || Math.abs(rotation - spinStart) >= REVEAL_TURN)) revealVideo();
     coastTime = performance.now();
     frame = requestAnimationFrame(coast);
