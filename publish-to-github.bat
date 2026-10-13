@@ -88,13 +88,29 @@ if errorlevel 1 (
 )
 
 echo.
+echo Checking for updates from GitHub...
+git -c http.sslBackend=schannel fetch origin
+if errorlevel 1 goto :git_failed
+
+git show-ref --verify --quiet "refs/remotes/origin/%BRANCH%"
+if not errorlevel 1 (
+  git rebase "origin/%BRANCH%"
+  if errorlevel 1 (
+    echo ERROR: GitHub updates could not be combined automatically.
+    echo Resolve any conflicts and run git rebase --continue, or run git rebase --abort.
+    echo Then retry publishing. Do not empty the GitHub repository.
+    goto :failed
+  )
+)
+
+echo.
 echo Uploading to %REMOTE%...
-git push -u origin "%BRANCH%"
+git -c http.sslBackend=schannel push -u origin "%BRANCH%"
 if errorlevel 1 (
   echo.
-  echo The upload did not complete. If the GitHub repository already contains
-  echo a README or another first commit, empty it or clone it before retrying.
-  echo Your local site files are safe and unchanged.
+  echo The upload did not complete. Your local commits are saved.
+  echo If GitHub changed again, retry publishing to fetch the latest updates.
+  echo Otherwise, check the connection and GitHub access error above.
   goto :failed
 )
 
@@ -102,7 +118,7 @@ echo.
 echo SUCCESS: SKATE is on GitHub.
 echo https://github.com/Aberdeen-Advisors/SKATE-site
 echo.
-echo Next: import that repository at https://vercel.com/new
+echo Your connected Vercel project can now deploy this update.
 pause
 exit /b 0
 
