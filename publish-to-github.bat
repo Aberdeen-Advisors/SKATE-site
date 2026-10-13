@@ -23,6 +23,7 @@ for %%F in (
   index.html
   video.html
   favicon.png
+  orion-hackathon-winner.png
   skateboard.png
   skateboard-3d.js
   THIRD-PARTY-NOTICES.txt
@@ -64,7 +65,7 @@ if not defined CURRENT_REMOTE (
 git branch -M "%BRANCH%"
 if errorlevel 1 goto :git_failed
 
-git add -- index.html video.html favicon.png skateboard.png skateboard-3d.js THIRD-PARTY-NOTICES.txt README.md vercel.json .gitignore .vercelignore publish-to-github.bat
+git add -- index.html video.html favicon.png orion-hackathon-winner.png skateboard.png skateboard-3d.js THIRD-PARTY-NOTICES.txt README.md vercel.json .gitignore .vercelignore publish-to-github.bat
 if errorlevel 1 goto :git_failed
 
 git diff --cached --quiet
